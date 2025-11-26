@@ -1,6 +1,12 @@
 package it.unibo.mvc;
 
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
 /**
  * Encapsulates the concept of configuration.
  */
@@ -63,13 +69,14 @@ public final class Configuration {
      */
     public static class Builder {
 
+        final InputStream inFile = ClassLoader.getSystemResourceAsStream("config.yml");
         private static final int MIN = 0;
         private static final int MAX = 100;
         private static final int ATTEMPTS = 10;
 
-        private int min = MIN;
-        private int max = MAX;
-        private int attempts = ATTEMPTS;
+        private int min;
+        private int max ;
+        private int attempts;
         private boolean consumed = false;
 
         /**
@@ -99,15 +106,55 @@ public final class Configuration {
             return this;
         }
 
+        private Configuration readConfiguration() throws IOException {
+            
+            int count = 0;
+            try (final BufferedReader in  =  new BufferedReader(new InputStreamReader(inFile))) {
+                        String line;
+                        String data = "";
+                        while ( (line = in.readLine()) != null) {
+                            StringTokenizer kenizer = new StringTokenizer(line, ": ");
+                            while (kenizer.hasMoreTokens()) {
+                                data = kenizer.nextToken();
+                            }
+                            switch (count) {
+                                case 0:
+                                    this.setMin(Integer.parseInt(data));
+                                    count++;
+                                    break;
+                                case 1:
+                                    this.setMax(Integer.parseInt(data));
+                                    count++;
+                                    break;
+                                case 2:
+                                    this.setAttempts(Integer.parseInt(data));
+                                    break;
+                            }
+                        }
+            }
+            return new Configuration(this.max, this.min, this.attempts);
+        }
+
+        public final Configuration defaultConfig() {
+            return new Configuration(MAX, MIN, ATTEMPTS);
+        }
+
         /**
          * @return a configuration
          */
-        public final Configuration build() {
+        public final Configuration build() throws IOException, NullPointerException, IllegalStateException {
+
+            Configuration config = null;
             if (consumed) {
                 throw new IllegalStateException("The builder can only be used once");
             }
             consumed = true;
-            return new Configuration(max, min, attempts);
+            
+            config = this.readConfiguration();
+            if(!config.isConsistent()) {
+                throw new IllegalStateException();
+            }
+            return config;
         }
     }
 }
