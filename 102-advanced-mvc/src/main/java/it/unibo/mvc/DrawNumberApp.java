@@ -26,11 +26,11 @@ public final class DrawNumberApp implements DrawNumberViewObserver {
             view.setObserver(this);
             view.start();
         } 
-        seConfiguration();
+        setConfiguration();
         this.model = new DrawNumberImpl(config.getMin(), config.getMax(), config.getAttempts());
     }
 
-    private void seConfiguration() {
+    private void setConfiguration() {
         Configuration.Builder builder = new  Configuration.Builder();
         
         try {

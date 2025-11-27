@@ -108,26 +108,21 @@ public final class Configuration {
 
         private Configuration readConfiguration() throws IOException {
             
-            int count = 0;
             try (final BufferedReader in  =  new BufferedReader(new InputStreamReader(inFile))) {
                         String line;
-                        String data = "";
                         while ( (line = in.readLine()) != null) {
-                            StringTokenizer kenizer = new StringTokenizer(line, ": ");
-                            while (kenizer.hasMoreTokens()) {
-                                data = kenizer.nextToken();
-                            }
-                            switch (count) {
-                                case 0:
-                                    this.setMin(Integer.parseInt(data));
-                                    count++;
+                            String[] data = line.split(": ");
+                            switch (data[0]) {
+                                case "minimum":
+                                    this.setMin(Integer.parseInt(data[1]));
                                     break;
-                                case 1:
-                                    this.setMax(Integer.parseInt(data));
-                                    count++;
+                                case "maximum":
+                                    this.setMax(Integer.parseInt(data[1]));
                                     break;
-                                case 2:
-                                    this.setAttempts(Integer.parseInt(data));
+                                case "attempts":
+                                    this.setAttempts(Integer.parseInt(data[1]));
+                                    break;
+                                default:
                                     break;
                             }
                         }
