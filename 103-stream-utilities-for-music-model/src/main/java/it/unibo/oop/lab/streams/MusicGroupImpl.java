@@ -1,5 +1,6 @@
 package it.unibo.oop.lab.streams;
 
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,22 +32,34 @@ public final class MusicGroupImpl implements MusicGroup {
 
     @Override
     public Stream<String> orderedSongNames() {
-        return null;
+        return songs
+                .stream()
+                .map(Song::getSongName)
+                .sorted(String::compareTo);
     }
 
     @Override
     public Stream<String> albumNames() {
-        return null;
+        return albums
+                .keySet()
+                .stream();
     }
 
     @Override
     public Stream<String> albumInYear(final int year) {
-        return null;
+        return albums
+                .entrySet()
+                .stream()
+                .filter(e -> e.getValue() == year)
+                .map(Map.Entry::getKey);
     }
 
     @Override
     public int countSongs(final String albumName) {
-        return -1;
+        return (int) songs
+                .stream()
+                .filter(s -> s.getAlbumName().isPresent() && s.getAlbumName().get().equals(albumName))
+                .count();
     }
 
     @Override
@@ -56,7 +69,11 @@ public final class MusicGroupImpl implements MusicGroup {
 
     @Override
     public OptionalDouble averageDurationOfSongs(final String albumName) {
-        return OptionalDouble.empty();
+        return songs
+                .stream()
+                .filter(s -> s.getAlbumName().isPresent() && s.getAlbumName().get().equals(albumName))
+                .mapToDouble(Song::getDuration)
+                .average();
     }
 
     @Override
